@@ -1,0 +1,137 @@
+import os
+
+from dotenv import load_dotenv
+from langchain import hub
+from langchain.agents import (
+    AgentExecutor,
+    create_react_agent,
+)
+from langchain_core.tools import Tool
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+
+# Load environment variables from .env file
+load_dotenv()
+
+
+# Define a very simple tool function that returns the current time
+def get_current_time(*args, **kwargs):
+    """Returns the current time in H:MM AM/PM format."""
+    import datetime  # Import datetime module to get current time
+
+    now = datetime.datetime.now()  # Get current time
+    return now.strftime("%I:%M %p")  # Format time in H:MM AM/PM format
+
+def get_weather(*args, **kwargs):
+    """Returns the weather"""
+    return "38C"
+
+
+# List of tools available to the agent
+tools = [
+    Tool(
+        name="Time",  # Name of the tool
+        func=get_current_time,  # Function that the tool will execute
+        # Description of the tool
+        description="Useful for when you need to know the current time",
+        return_direct=True
+    ),
+    Tool(
+        name="Weather",
+        func=get_weather,
+        description="Useful for when you need to know the weather",
+        return_direct=True
+    ),
+]
+
+# Pull the prompt template from the hub
+# ReAct = Reason and Action
+# https://smith.langchain.com/hub/hwchase17/react
+# prompt = hub.pull("hwchase17/react")
+
+# prompt = PromptTemplate(
+#     input_variables=["input", "tools", "tool_names", "agent_scratchpad"],
+#     template="""
+#         Answer the following questions as best you can. You have access to the following tools:
+#         {tools}
+#
+#         Use the following format:
+#
+#         Question: the input question you must answer
+#         Thought: you should always think about what to do
+#         Action: the action to take, should be one of [{tool_names}]
+#         Action Input: the input to the action
+#         Observation: the result of the tool
+#         ... (this Thought/Action/Action Input/Observation can repeat N times)
+#         Final Answer: the final answer to the original input question
+#
+#         Begin!
+#
+#         Question: {input}
+#         Thought:{agent_scratchpad}
+#     """
+# )
+
+prompt = PromptTemplate(
+    input_variables=["input", "tools", "tool_names", "agent_scratchpad"],
+    template="""
+        Answer the following questions to the best of your ability. You can utilize the following tools for assistance:  
+        {tools}  
+        
+        Follow this structured format for your responses:  
+        
+        Question: The question you need to answer.  
+        Thought: Reflect on what needs to be done.  
+        Action: Specify the action to take, selecting one from [{tool_names}].  
+        Action Input: Provide the input for the selected action.  
+        Observation: Document the result of the action.  
+        ... (Repeat the Thought/Action/Action Input/Observation cycle as needed.)  
+        Final Answer: Present your final answer to the initial question.  
+        
+        If a question requires multiple actions, you **must** execute all required actions before giving the final answer.  
+
+        Let's start!  
+        
+        Question: {input}  
+        Thought: {agent_scratchpad}
+    """
+)
+
+os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
+
+
+# Initialize a ChatOpenAI model
+llm = ChatOpenAI(
+    # model="llama3.2:3b", base_url="http://localhost:11434/v1", temperature=0
+    # model="mixtral-8x7b-32768", temperature=0
+    model="llama-3.3-70b-versatile", temperature=0
+)
+
+# Create the ReAct agent using the create_react_agent function
+agent = create_react_agent(
+    llm=llm,
+    tools=tools,
+    prompt=prompt,
+    stop_sequence=True,
+)
+
+# Create an agent executor from the agent and tools
+agent_executor = AgentExecutor.from_agent_and_tools(
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    handle_parsing_errors=True,
+    return_intermediate_steps=True
+)
+
+# Run the agent with a test query
+try:
+    response = agent_executor.invoke({"input": "What time is it now and weather?"})
+    if response:
+        print("Agent Response:", response)
+    else:
+        print("Warning: Received an empty response from the agent.")
+except Exception as e:
+    print("Error occurred while invoking the agent:", str(e))
+
