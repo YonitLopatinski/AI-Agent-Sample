@@ -34,13 +34,13 @@ tools = [
         func=get_current_time,  # Function that the tool will execute
         # Description of the tool
         description="Useful for when you need to know the current time",
-        return_direct=True
+        # return_direct=True
     ),
     Tool(
         name="Weather",
         func=get_weather,
         description="Useful for when you need to know the weather",
-        return_direct=True
+        # return_direct=True
     ),
 ]
 
@@ -86,9 +86,10 @@ prompt = PromptTemplate(
         Action Input: Provide the input for the selected action.  
         Observation: Document the result of the action.  
         ... (Repeat the Thought/Action/Action Input/Observation cycle as needed.)  
-        Final Answer: Present your final answer to the initial question.  
         
-        If a question requires multiple actions, you **must** execute all required actions before giving the final answer.  
+        **If you have gathered all the necessary information, do not take further actions. Instead, construct a complete and final answer in this format:**  
+        
+        Final Answer: [Your complete answer, summarizing all retrieved information.]  
 
         Let's start!  
         
@@ -116,18 +117,34 @@ agent = create_react_agent(
     stop_sequence=True,
 )
 
+# 👉 Why? This memory keeps track of past interactions, preventing redundant tool calls.
+from langchain.memory import ConversationBufferMemory
+
+memory = ConversationBufferMemory(
+    memory_key="chat_history",
+    return_messages=True,
+    output_key="output"  # Recommended in newer versions
+)
+
+
 # Create an agent executor from the agent and tools
 agent_executor = AgentExecutor.from_agent_and_tools(
     agent=agent,
     tools=tools,
+    memory=memory,
     verbose=True,
     handle_parsing_errors=True,
     return_intermediate_steps=True
 )
 
+
+
+
+
+
 # Run the agent with a test query
 try:
-    response = agent_executor.invoke({"input": "What time is it now and weather?"})
+    response = agent_executor.invoke({"input": "What weather is it now? and what time?"})
     if response:
         print("Agent Response:", response)
     else:
