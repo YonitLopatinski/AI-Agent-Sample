@@ -1,26 +1,24 @@
 import os
 
 from dotenv import load_dotenv
-from langchain import hub
 from langchain.agents import (
     AgentExecutor,
     create_react_agent,
 )
+from langchain.prompts import PromptTemplate
 from langchain_core.tools import Tool
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
 
 # Load environment variables from .env file
 load_dotenv()
 
 
-# Define a very simple tool function that returns the current time
 def get_current_time(*args, **kwargs):
     """Returns the current time in H:MM AM/PM format."""
-    import datetime  # Import datetime module to get current time
+    import datetime
+    now = datetime.datetime.now()
+    return now.strftime("%I:%M %p")
 
-    now = datetime.datetime.now()  # Get current time
-    return now.strftime("%I:%M %p")  # Format time in H:MM AM/PM format
 
 def get_weather(*args, **kwargs):
     """Returns the weather"""
@@ -32,45 +30,15 @@ tools = [
     Tool(
         name="Time",  # Name of the tool
         func=get_current_time,  # Function that the tool will execute
-        # Description of the tool
-        description="Useful for when you need to know the current time",
-        # return_direct=True
+        description="Useful for when you need to know the current time", # Description of the tool
     ),
     Tool(
         name="Weather",
         func=get_weather,
         description="Useful for when you need to know the weather",
-        # return_direct=True
     ),
 ]
 
-# Pull the prompt template from the hub
-# ReAct = Reason and Action
-# https://smith.langchain.com/hub/hwchase17/react
-# prompt = hub.pull("hwchase17/react")
-
-# prompt = PromptTemplate(
-#     input_variables=["input", "tools", "tool_names", "agent_scratchpad"],
-#     template="""
-#         Answer the following questions as best you can. You have access to the following tools:
-#         {tools}
-#
-#         Use the following format:
-#
-#         Question: the input question you must answer
-#         Thought: you should always think about what to do
-#         Action: the action to take, should be one of [{tool_names}]
-#         Action Input: the input to the action
-#         Observation: the result of the tool
-#         ... (this Thought/Action/Action Input/Observation can repeat N times)
-#         Final Answer: the final answer to the original input question
-#
-#         Begin!
-#
-#         Question: {input}
-#         Thought:{agent_scratchpad}
-#     """
-# )
 
 prompt = PromptTemplate(
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"],
@@ -101,7 +69,6 @@ prompt = PromptTemplate(
 os.environ["OPENAI_API_KEY"] = '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'
 os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
 
-
 # Initialize a ChatOpenAI model
 llm = ChatOpenAI(
     # model="llama3.2:3b", base_url="http://localhost:11434/v1", temperature=0
@@ -126,7 +93,6 @@ memory = ConversationBufferMemory(
     output_key="output"  # Recommended in newer versions
 )
 
-
 # Create an agent executor from the agent and tools
 agent_executor = AgentExecutor.from_agent_and_tools(
     agent=agent,
@@ -137,11 +103,6 @@ agent_executor = AgentExecutor.from_agent_and_tools(
     return_intermediate_steps=True
 )
 
-
-
-
-
-
 # Run the agent with a test query
 try:
     response = agent_executor.invoke({"input": "What weather is it now? and what time?"})
@@ -151,4 +112,3 @@ try:
         print("Warning: Received an empty response from the agent.")
 except Exception as e:
     print("Error occurred while invoking the agent:", str(e))
-
