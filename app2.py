@@ -9,6 +9,15 @@ from langchain.memory import ConversationBufferMemory
 
 # Load environment variables from .env file
 load_dotenv()
+# Access the environment variables
+openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_api_base = os.getenv("OPENAI_API_BASE")
+
+os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
+
+print("OpenAI API Key: ", openai_api_key)
+print("OpenAI API Base: ", openai_api_base)
 
 # Tool Functions
 def get_current_time(*args, **kwargs):
@@ -18,8 +27,18 @@ def get_current_time(*args, **kwargs):
 
 def fetch_order_details(order_id: int):
     """Fetches order details for a given order ID."""
-    return f"Your order {order_id} has been Shipped. Tracking Info: Tracking Number: ABC123XYZ"
+    return f"Your order {order_id} has been Shipped. Tracking Info: ABC123XYZ"
 
+def get_user_data(user_id: int):
+    """Fetches user data for a given user ID."""
+    # Example response; in real use case, this would come from a database or API
+    user_data = {
+        "user_id": user_id,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "account_status": "Active"
+    }
+    return user_data
 
 # List of tools
 tools = [
@@ -31,8 +50,14 @@ tools = [
     ),
     Tool(
         name="Order Lookup",
-        func=fetch_order_details,  # Directly use the function here
+        func=fetch_order_details,
         description="Fetch order status and tracking info using order_id.",
+        return_direct=True
+    ),
+    Tool(
+        name="Get User Data",
+        func=get_user_data,
+        description="Fetch user profile details based on user ID.",
         return_direct=True
     )
 ]
@@ -58,8 +83,6 @@ prompt = PromptTemplate(
     """
 )
 
-os.environ["OPENAI_API_KEY"] = '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'
-os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
 
 # Initialize LLM
 llm = ChatOpenAI(
@@ -70,11 +93,11 @@ llm = ChatOpenAI(
 agent = create_react_agent(llm=llm, tools=tools, prompt=prompt, stop_sequence=True)
 
 # Memory to keep track of interactions
-memory = ConversationBufferMemory(
-    memory_key="chat_history",
-    return_messages=True,
-    output_key="output"
-)
+# memory = ConversationBufferMemory(
+#     memory_key="chat_history",
+#     return_messages=True,
+#     output_key="output"
+# )
 
 # Agent Executor
 agent_executor = AgentExecutor.from_agent_and_tools(
@@ -89,6 +112,12 @@ agent_executor = AgentExecutor.from_agent_and_tools(
 # Run Test Query
 try:
     response = agent_executor.invoke({"input": "What is the status of my order 123456?"})
-    print("Agent Response:", response)
+    print("Agent Response:", response['output'])
+
+    response = agent_executor.invoke({"input": "What is time is it?"})
+    print("Agent Response:", response['output'])
+
+    response = agent_executor.invoke({"input": "tell me about user 123456?"})
+    print("Agent Response:", response['output'])
 except Exception as e:
     print("Error occurred while invoking the agent:", str(e))
