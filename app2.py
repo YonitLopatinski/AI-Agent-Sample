@@ -16,8 +16,6 @@ openai_api_base = os.getenv("OPENAI_API_BASE")
 os.environ["OPENAI_API_KEY"] = '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'
 os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
 
-print("OpenAI API Key: ", openai_api_key)
-print("OpenAI API Base: ", openai_api_base)
 
 # Tool Functions
 def get_current_time(*args, **kwargs):
@@ -46,19 +44,19 @@ tools = [
         name="Time",
         func=get_current_time,
         description="Useful for when you need to know the current time.",
-        return_direct=True
+        # return_direct=True
     ),
     Tool(
         name="Order Lookup",
         func=fetch_order_details,
         description="Fetch order status and tracking info using order_id.",
-        return_direct=True
+        # return_direct=True
     ),
     Tool(
         name="Get User Data",
         func=get_user_data,
         description="Fetch user profile details based on user ID.",
-        return_direct=True
+        # return_direct=True
     )
 ]
 
@@ -111,13 +109,13 @@ agent_executor = AgentExecutor.from_agent_and_tools(
 
 # Run Test Query
 try:
-    response = agent_executor.invoke({"input": "What is the status of my order 123456?"})
+    response = agent_executor.invoke({"input": "What is the status of my order 123456 and return time"})
     print("Agent Response:", response['output'])
 
-    response = agent_executor.invoke({"input": "What is time is it?"})
-    print("Agent Response:", response['output'])
-
-    response = agent_executor.invoke({"input": "tell me about user 123456?"})
-    print("Agent Response:", response['output'])
+    # response = agent_executor.invoke({"input": "What is time is it?"})
+    # print("Agent Response:", response['output'])
+    #
+    # response = agent_executor.invoke({"input": "tell me about user 123456?"})
+    # print("Agent Response:", response['output'])
 except Exception as e:
     print("Error occurred while invoking the agent:", str(e))
