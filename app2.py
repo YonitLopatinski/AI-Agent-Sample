@@ -1,20 +1,15 @@
 import os
 import datetime
 from dotenv import load_dotenv
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import initialize_agent, AgentType
 from langchain.prompts import PromptTemplate
 from langchain_core.tools import Tool
 from langchain_openai import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
 
-# Load environment variables from .env file
 load_dotenv()
-# Access the environment variables
-openai_api_key = os.getenv("OPENAI_API_KEY")
-openai_api_base = os.getenv("OPENAI_API_BASE")
 
 os.environ["OPENAI_API_KEY"] = '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'
-os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
+# os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
 
 
 # Tool Functions
@@ -23,13 +18,14 @@ def get_current_time(*args, **kwargs):
     now = datetime.datetime.now()
     return now.strftime("%I:%M %p")
 
-def fetch_order_details(order_id: int):
+def fetch_order_details(order_id: str):
     """Fetches order details for a given order ID."""
+    order_id = int(order_id)  # Convert to integer
     return f"Your order {order_id} has been Shipped. Tracking Info: ABC123XYZ"
 
-def get_user_data(user_id: int):
+def get_user_data(user_id: str):
     """Fetches user data for a given user ID."""
-    # Example response; in real use case, this would come from a database or API
+    user_id = int(user_id)  # Convert to integer
     user_data = {
         "user_id": user_id,
         "name": "John Doe",
@@ -37,6 +33,7 @@ def get_user_data(user_id: int):
         "account_status": "Active"
     }
     return user_data
+
 
 # List of tools
 tools = [
@@ -87,24 +84,15 @@ llm = ChatOpenAI(
     model="llama-3.3-70b-versatile", temperature=0
 )
 
-# Create Agent
-agent = create_react_agent(llm=llm, tools=tools, prompt=prompt, stop_sequence=True)
 
-# Memory to keep track of interactions
-# memory = ConversationBufferMemory(
-#     memory_key="chat_history",
-#     return_messages=True,
-#     output_key="output"
-# )
 
-# Agent Executor
-agent_executor = AgentExecutor.from_agent_and_tools(
-    agent=agent,
+# Create Agent Executor
+agent_executor = initialize_agent(
     tools=tools,
-    # memory=memory,
+    llm=llm,
+    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,  # Supports multiple tool executions
     verbose=True,
-    handle_parsing_errors=True,
-    return_intermediate_steps=True
+    handle_parsing_errors=True
 )
 
 # Run Test Query
