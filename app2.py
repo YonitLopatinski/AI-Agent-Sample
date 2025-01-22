@@ -1,5 +1,6 @@
-import os
 import datetime
+import os
+
 from dotenv import load_dotenv
 from langchain.agents import initialize_agent, AgentType
 from langchain.prompts import PromptTemplate
@@ -9,19 +10,32 @@ from langchain_openai import ChatOpenAI
 load_dotenv()
 
 os.environ["OPENAI_API_KEY"] = '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'
+
+
 # os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
 
 
+# Perceives: User asks, "What's the weather today?"
+# Processes: Checks an API for the weather.
+# Acts: Responds with "It's sunny and 25°C."
+
+# A chat assistant where:
+# A retrieval agent fetches documents,
+# A summarization agent processes them,
+# A reasoning agent generates responses.
+
 # Tool Functions
-def get_current_time(*args, **kwargs):
+def get_current_time(action_input=None):
     """Returns the current time in H:MM AM/PM format."""
     now = datetime.datetime.now()
     return now.strftime("%I:%M %p")
 
-def fetch_order_details(order_id: str):
-    """Fetches order details for a given order ID."""
-    order_id = int(order_id)  # Convert to integer
+
+def get_order_details(order_id: str):
+    """Returns order details for a given order ID."""
+    order_id = int(order_id)
     return f"Your order {order_id} has been Shipped. Tracking Info: ABC123XYZ"
+
 
 def get_user_data(user_id: str):
     """Fetches user data for a given user ID."""
@@ -45,7 +59,7 @@ tools = [
     ),
     Tool(
         name="Order Lookup",
-        func=fetch_order_details,
+        func=get_order_details,
         description="Fetch order status and tracking info using order_id.",
         # return_direct=True
     ),
@@ -78,13 +92,10 @@ prompt = PromptTemplate(
     """
 )
 
-
 # Initialize LLM
 llm = ChatOpenAI(
     model="llama-3.3-70b-versatile", temperature=0
 )
-
-
 
 # Create Agent Executor
 agent_executor = initialize_agent(
@@ -97,12 +108,18 @@ agent_executor = initialize_agent(
 
 # Run Test Query
 try:
-    response = agent_executor.invoke({"input": "What is the status of my order 123456 and return time"})
+    # response = agent_executor.invoke({"input": "Where is my order 12345?"})
+    # print("Agent Response:", response['output'])
+
+    # response = agent_executor.invoke({"input": "What is the status of my order 123456 and return time"})
+    # print("Agent Response:", response['output'])
+
+    # response = agent_executor.invoke({"input": "What is the details of user 555 and status order 123456 "})
+    # print("Agent Response:", response['output'])
+
+    response = agent_executor.invoke({"input": "What is time is it?"})
     print("Agent Response:", response['output'])
 
-    # response = agent_executor.invoke({"input": "What is time is it?"})
-    # print("Agent Response:", response['output'])
-    #
     # response = agent_executor.invoke({"input": "tell me about user 123456?"})
     # print("Agent Response:", response['output'])
 except Exception as e:
