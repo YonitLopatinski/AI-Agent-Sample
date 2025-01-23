@@ -27,17 +27,26 @@ prompt = PromptTemplate(
                 ``` 
                 {{"function_name": "get_user_details", "function_params": {{"user_id": "USER_ID"}}}}
                 ```
-      
         
         ❓ User Question:
         💬 {question}
 
         ➡️ If a action is needed, return output JSON format ONLY
-
     """
 )
 
+followup_prompt = PromptTemplate(
+    input_variables=["question", "tool_result"],
+    template="""
+            ✅ Here is the tool's result: {tool_result}
 
+            🔄 Now, provide a final, natural language response based on the user's question:
+            💬 {question}
+        """
+)
+
+
+# Tool: Order Lookup
 def find_order_details(order_id):
     """Mock function to retrieve order details based on order ID."""
     mock_orders = {
@@ -48,13 +57,14 @@ def find_order_details(order_id):
     return mock_orders.get(order_id, "Order not found.")
 
 
+# Tool: User Details
 def get_user_details(user_id):
     """Returns user data for a given user ID."""
     users_data = {
         "1": {"user_id": "1", "name": "Alice Smith", "email": "alice.smith@example.com",
-                   "account_status": "Inactive"},
+              "account_status": "Inactive"},
         "2": {"user_id": "2", "name": "Bob Johnson", "email": "bob.johnson@example.com",
-                   "account_status": "Suspended"},
+              "account_status": "Suspended"},
     }
     return users_data.get(user_id, "User not found.")
 
@@ -81,7 +91,7 @@ def execute_action(action_json):
             raise Exception(f"Unknown action: {function_name}: {function_params}")
 
         action_function = available_actions[function_name]
-        return function_name, action_function(**function_params)
+        return action_function(**function_params)
 
     except json.JSONDecodeError:
         return "❌ Failed to parse tool response."
@@ -96,7 +106,10 @@ def get_answer(question):
     try:
         json_response = json.loads(response.content)
         if isinstance(json_response, dict) and "function_name" in json_response:
-            return execute_action(response.content)  # Call tool function
+            tool_result = execute_action(response.content)  # Call tool function
+            formatted_prompt = followup_prompt.format(question=question, tool_result=tool_result)
+            response = llm.invoke(formatted_prompt)
+
     except json.JSONDecodeError:
         pass
 
@@ -104,7 +117,7 @@ def get_answer(question):
 
 
 # user_question = "Where is my order 11?"
-user_question = "Where is account status for user 1?"
+user_question = "What is account status for user 1?"
 answer = get_answer(user_question)
 print(f"💬Question: {user_question}")
 print(f"🤖Answer: {answer}")
