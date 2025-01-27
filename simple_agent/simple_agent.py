@@ -1,5 +1,3 @@
-import openai
-
 import internal.config
 
 from langchain.prompts import PromptTemplate
