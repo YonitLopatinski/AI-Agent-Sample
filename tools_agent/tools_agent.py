@@ -1,5 +1,5 @@
 import json
-import config
+import internal.config
 
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
