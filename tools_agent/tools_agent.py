@@ -114,7 +114,14 @@ def get_answer(question):
 
 
 # user_question = "Where is my order 11?"
+
+user_question = "What is email of user 1?"
+answer = get_answer(user_question)
+print(f"💬Question: {user_question}")
+print(f"🤖Answer: {answer}\n")
+
+
 user_question = "What is hobby of user 2?"
 answer = get_answer(user_question)
 print(f"💬Question: {user_question}")
-print(f"🤖Answer: {answer}")
+print(f"🤖Answer: {answer}\n")
