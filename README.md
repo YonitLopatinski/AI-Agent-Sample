@@ -4,6 +4,7 @@ This repository ws created for my session in DDOS & Microsoft meetup "A Ticket t
 In this session I've introduced basic term in GenAI, and built an AI Agent using Grop LLM
 You can find here relevant information and basis code sample of AI Agent with tools
 
+# My Blog Posts
 ## A Ticket to GenAI World
 **[A Ticket to GenAI World for Developers](https://medium.com/@Lopay/a-ticket-to-genai-world-for-developers-a86f171b3666)**  
    - Introduction to GenAI, basic terms, LLM overview, and how to choose the right model for your needs.
