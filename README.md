@@ -3,7 +3,7 @@
 This repository ws created for my session in DDOS & Microsoft meetup "A Ticket to GenAI World".    
 In this session I've introduced basic term in GenAI, and built an AI Agent using models hosted in Groq.  
 
-You can find here relevant information and basis code sample of AI Agent with tools
+You can find here relevant information and basic code samples of AI Agent with tools
 
 # My Blog Posts
 ## A Ticket to GenAI World
