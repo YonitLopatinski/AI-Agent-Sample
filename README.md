@@ -1,7 +1,8 @@
 # AI-Agent-Sample
 
-This repository ws created for my Session in DDOS & Microsoft meetup "A Ticket to GenAI World"
+This repository ws created for my session in DDOS & Microsoft meetup "A Ticket to GenAI World"
 In this session I've introduced basic term in GenAI, and built an AI Agent using Grop LLM
+You can find here relevant information and basis code sample of AI Agent with tools
 
 ## A Ticket to GenAI World
 **[A Ticket to GenAI World for Developers](https://medium.com/@Lopay/a-ticket-to-genai-world-for-developers-a86f171b3666)**  
