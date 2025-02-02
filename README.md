@@ -1,3 +1,8 @@
+Feel free to connect with me on LinkedIn  
+<a href="https://www.linkedin.com/in/yonit-lopatinski/">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg" alt="LinkedIn" width="25" height="25"/>
+</a>
+
 # AI-Agent-Sample
 
 This repository ws created for my session in DDOS & Microsoft meetup "A Ticket to GenAI World".    
