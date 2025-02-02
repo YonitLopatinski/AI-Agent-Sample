@@ -1,9 +1,10 @@
 # AI-Agent-Sample
 
 This repository ws created for my session in DDOS & Microsoft meetup "A Ticket to GenAI World".    
-In this session I've introduced basic term in GenAI, and built an AI Agent using models hosted in Groq.  
+In this session I've introduced basic term in GenAI, and built an AI Agent using models hosted in Groq.
+You can find here relevant information and basic code samples of AI Agent with tools.
 
-You can find here relevant information and basic code samples of AI Agent with tools
+Before getting started with the code, I recommend reading my blogs:
 
 # My Blog Posts
 ## A Ticket to GenAI World
